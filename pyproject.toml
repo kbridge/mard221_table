@@ -1,0 +1,19 @@
+[project]
+name = "mard221-table"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "kq", email = "kbridge4096@outlook.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "openpyxl>=3.1.5",
+]
+
+[project.scripts]
+mard221-table = "mard221_table:main"
+
+[build-system]
+requires = ["uv_build>=0.12.9,<0.13.0"]
+build-backend = "uv_build"
