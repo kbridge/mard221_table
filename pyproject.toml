@@ -2,12 +2,12 @@
 name = "mard221-table"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.md"
 authors = [
     { name = "kq", email = "kbridge4096@outlook.com" }
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "drawsvg>=2.4.2",
     "openpyxl>=3.1.5",
 ]
 
