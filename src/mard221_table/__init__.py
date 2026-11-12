@@ -1,4 +1,5 @@
 import drawsvg as draw
+import os
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -23,10 +24,23 @@ def simplify_color_name(name: str) -> str:
     t = name[1:].lstrip("0")
     return s + t
 
-def write_mard221_excel(show_hex) -> None:
+def get_color_names(palette_name: str) -> list[str]:
+    return colors.__dict__[palette_name]
+
+def get_color_rgb(color_name: str) -> str:
+    """
+    Input `color_name` should be in canonical form, e.g. "A01", NOT "A1".
+
+    Returned string is in the form "XXXXXX", that is, without the leading hash.
+    """
+    return colors.palette[color_name]
+
+OUTPUT_DIR = "output"
+
+def write_excel(palette_name: str, show_hex: bool) -> None:
     groups = []
     last_letter = None
-    for name in colors.mard221:
+    for name in get_color_names(palette_name):
         letter = name[0]
         if letter != last_letter:
             groups.append([])
@@ -40,7 +54,7 @@ def write_mard221_excel(show_hex) -> None:
         column_name = chr(65 + group_index)
         for color_index, name in enumerate(group):
             cell_name = column_name + str(color_index + 1)
-            color_rgb = colors.palette[name]
+            color_rgb = get_color_rgb(name)
             cell = worksheet[cell_name]
             cell.value = simplify_color_name(name)
             if show_hex:
@@ -53,14 +67,13 @@ def write_mard221_excel(show_hex) -> None:
             cell.fill = PatternFill(fill_type="solid", fgColor=color_rgb)
         if show_hex:
             worksheet.column_dimensions[column_name].width = 14.67
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     if show_hex:
-        workbook.save("mard221-hex.xlsx")
+        workbook.save(os.path.join(OUTPUT_DIR, f"{palette_name}-hex.xlsx"))
     else:
-        workbook.save("mard221.xlsx")
+        workbook.save(os.path.join(OUTPUT_DIR, f"{palette_name}.xlsx"))
 
-# e.g. name="mard24"
-
-def write_svg(name) -> None:
+def write_svg(palette_name: str) -> None:
     radius = 24
     border_width = 2 # set to zero to hide border
     border_color = "#e0e0e0"
@@ -81,7 +94,7 @@ def write_svg(name) -> None:
 
     diameter = radius * 2
 
-    color_names: list[str] = colors.__dict__[name]
+    color_names = get_color_names(palette_name)
     color_count = len(color_names)
 
     num_columns = 8
@@ -98,7 +111,7 @@ def write_svg(name) -> None:
         row_index = color_index // num_columns
         column_index = color_index % num_columns
 
-        color_rgb = colors.palette[color_name]
+        color_rgb = get_color_rgb(color_name)
 
         circle_y = vertical_margin + row_index * (diameter + vertical_gap) + radius
         circle_x = horizontal_margin + column_index * (diameter + horizontal_gap) + radius
@@ -134,7 +147,12 @@ def write_svg(name) -> None:
             )
         )
 
-    d.save_svg(f"{name}.svg")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    d.save_svg(os.path.join(OUTPUT_DIR, f"{palette_name}.svg"))
 
 def main() -> None:
-    write_svg("mard24")
+    pass
+    # write_excel("mard24", show_hex=False)
+    write_svg("mard48")
+
+# uv run mard221-table
